@@ -3990,7 +3990,12 @@ enum XMPPStreamConfig
 	}
 	else
 	{
+        // -- egv ---
+        // that stupid server is not RFC complaint although it says it is
+        
 		// Check for RFC compliance
+
+        /*
 		if ([self serverXmppStreamVersionNumber] >= 1.0)
 		{
 			// Update state - we're now onto stream negotiations
@@ -4000,6 +4005,7 @@ enum XMPPStreamConfig
 		}
 		else
 		{
+            */
 			// The server isn't RFC comliant, and won't be sending any stream features.
 			
 			// We would still like to know what authentication features it supports though,
@@ -4025,7 +4031,9 @@ enum XMPPStreamConfig
 			                   tag:TAG_XMPP_WRITE_STREAM];
 			
 			// Now wait for the response IQ
+            /*
 		}
+        */
 	}
 }
 
