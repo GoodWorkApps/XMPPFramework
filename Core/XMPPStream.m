@@ -3050,7 +3050,7 @@ enum XMPPStreamConfig
 		parser = [[XMPPParser alloc] initWithDelegate:self delegateQueue:xmppQueue];
 	}
 	
-	NSString *xmlns = @"jabber:client";
+	NSString *xmlns = @"jabber:client:simple";
 	NSString *xmlns_stream = @"http://etherx.jabber.org/streams";
 	
 	NSString *temp, *s2;
