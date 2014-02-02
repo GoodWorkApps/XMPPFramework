@@ -19,7 +19,7 @@
 
 // Log levels: off, error, warn, info, verbose
 #if DEBUG
-  static const int xmppLogLevel = XMPP_LOG_LEVEL_INFO | XMPP_LOG_FLAG_SEND_RECV; // | XMPP_LOG_FLAG_TRACE;
+  static const int xmppLogLevel = XMPP_LOG_LEVEL_VERBOSE | XMPP_LOG_FLAG_SEND_RECV |  XMPP_LOG_FLAG_TRACE;
 #else
   static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN;
 #endif
@@ -108,6 +108,9 @@ enum XMPPStreamConfig
 	UInt16 hostPort;
     
 	BOOL autoStartTLS;
+
+
+    BOOL bound;
 	
 	id <XMPPSASLAuthentication> auth;
 	NSDate *authenticationDate;
@@ -3230,11 +3233,11 @@ enum XMPPStreamConfig
 	
 	// Check to see if TLS is required
 	// Don't forget about that NSXMLElement bug you reported to apple (xmlns is required or element won't be found)
-	NSXMLElement *f_starttls = [features elementForName:@"starttls" xmlns:@"urn:ietf:params:xml:ns:xmpp-tls"];
+	NSXMLElement *f_starttls = [rootElement attributeStringValueForName:@"starttls"];
 	
 	if (f_starttls)
 	{
-		if ([f_starttls elementForName:@"required"] || [self autoStartTLS])
+		if ([self autoStartTLS])
 		{
 			// TLS is required for this connection
 			
@@ -3252,69 +3255,7 @@ enum XMPPStreamConfig
 			return;
 		}
 	}
-	
-	// Check to see if resource binding is required
-	// Don't forget about that NSXMLElement bug you reported to apple (xmlns is required or element won't be found)
-	NSXMLElement *f_bind = [features elementForName:@"bind" xmlns:@"urn:ietf:params:xml:ns:xmpp-bind"];
-	
-	if (f_bind)
-	{
-		// Binding is required for this connection
-		state = STATE_XMPP_BINDING;
-		
-		NSString *requestedResource = [myJID_setByClient resource];
-		
-		if ([requestedResource length] > 0)
-		{
-			// Ask the server to bind the user specified resource
-			
-			NSXMLElement *resource = [NSXMLElement elementWithName:@"resource"];
-			[resource setStringValue:requestedResource];
-			
-			NSXMLElement *bind = [NSXMLElement elementWithName:@"bind" xmlns:@"urn:ietf:params:xml:ns:xmpp-bind"];
-			[bind addChild:resource];
-			
-			NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
-			[iq addAttributeWithName:@"type" stringValue:@"set"];
-			[iq addAttributeWithName:@"id" stringValue:[self generateUUID]];
-			[iq addChild:bind];
-			
-			NSString *outgoingStr = [iq compactXMLString];
-			NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
-			
-			XMPPLogSend(@"SEND: %@", outgoingStr);
-			numberOfBytesSent += [outgoingData length];
-			
-			[asyncSocket writeData:outgoingData
-					   withTimeout:TIMEOUT_XMPP_WRITE
-							   tag:TAG_XMPP_WRITE_STREAM];
-		}
-		else
-		{
-			// The user didn't specify a resource, so we ask the server to bind one for us
-			
-			NSXMLElement *bind = [NSXMLElement elementWithName:@"bind" xmlns:@"urn:ietf:params:xml:ns:xmpp-bind"];
-			
-			NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
-			[iq addAttributeWithName:@"type" stringValue:@"set"];
-			[iq addAttributeWithName:@"id" stringValue:[self generateUUID]];
-			[iq addChild:bind];
-			
-			NSString *outgoingStr = [iq compactXMLString];
-			NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
-			
-			XMPPLogSend(@"SEND: %@", outgoingStr);
-			numberOfBytesSent += [outgoingData length];
-			
-			[asyncSocket writeData:outgoingData
-					   withTimeout:TIMEOUT_XMPP_WRITE
-							   tag:TAG_XMPP_WRITE_STREAM];
-		}
-		
-		// We're already listening for the response...
-		return;
-	}
-	
+
 	// It looks like all has gone well, and the connection should be ready to use now
 	state = STATE_XMPP_CONNECTED;
 	
@@ -3326,6 +3267,69 @@ enum XMPPStreamConfig
 		[multicastDelegate xmppStreamDidConnect:self];
 	}
 }
+
+- (void)doBinding
+{
+
+    if (!bound)
+    {
+        // Binding is required for this connection
+        state = STATE_XMPP_BINDING;
+
+        NSString *requestedResource = [myJID_setByClient resource];
+
+        if ([requestedResource length] > 0)
+        {
+            // Ask the server to bind the user specified resource
+
+            NSXMLElement *resource = [NSXMLElement elementWithName:@"resource"];
+            [resource setStringValue:requestedResource];
+
+            NSXMLElement *bind = [NSXMLElement elementWithName:@"bind" xmlns:@"urn:ietf:params:xml:ns:xmpp-bind"];
+            [bind addChild:resource];
+
+            NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
+            [iq addAttributeWithName:@"type" stringValue:@"set"];
+            [iq addAttributeWithName:@"id" stringValue:[self generateUUID]];
+            [iq addChild:bind];
+
+            NSString *outgoingStr = [iq compactXMLString];
+            NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
+
+            XMPPLogSend(@"SEND: %@", outgoingStr);
+            numberOfBytesSent += [outgoingData length];
+
+            [asyncSocket writeData:outgoingData
+                       withTimeout:TIMEOUT_XMPP_WRITE
+                               tag:TAG_XMPP_WRITE_STREAM];
+        }
+        else
+        {
+            // The user didn't specify a resource, so we ask the server to bind one for us
+
+            NSXMLElement *bind = [NSXMLElement elementWithName:@"bind" xmlns:@"urn:ietf:params:xml:ns:xmpp-bind"];
+
+            NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
+            [iq addAttributeWithName:@"type" stringValue:@"set"];
+            [iq addAttributeWithName:@"id" stringValue:[self generateUUID]];
+            [iq addChild:bind];
+
+            NSString *outgoingStr = [iq compactXMLString];
+            NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
+
+            XMPPLogSend(@"SEND: %@", outgoingStr);
+            numberOfBytesSent += [outgoingData length];
+
+            [asyncSocket writeData:outgoingData
+                       withTimeout:TIMEOUT_XMPP_WRITE
+                               tag:TAG_XMPP_WRITE_STREAM];
+        }
+
+        // We're already listening for the response...
+        return;
+    }
+}
+
 
 - (void)handleStartTLSResponse:(NSXMLElement *)response
 {
@@ -3419,6 +3423,9 @@ enum XMPPStreamConfig
 			state = STATE_XMPP_CONNECTED;
 			
 			[multicastDelegate xmppStreamDidAuthenticate:self];
+
+
+            [self doBinding];
 		}
 		
 		// Done with auth
@@ -3503,7 +3510,8 @@ enum XMPPStreamConfig
 		{
 			// Revert back to connected state (from binding state)
 			state = STATE_XMPP_CONNECTED;
-			
+			bound = YES;
+
 			[multicastDelegate xmppStreamDidAuthenticate:self];
 		}
 	}
@@ -4013,22 +4021,24 @@ enum XMPPStreamConfig
 			
 			// Update state - we're onto psuedo negotiation
 			state = STATE_XMPP_NEGOTIATING;
-			
-			NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:@"jabber:iq:auth"];
-			
-			NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
-			[iq addAttributeWithName:@"type" stringValue:@"get"];
-			[iq addChild:query];
-			
-			NSString *outgoingStr = [iq compactXMLString];
-			NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
-			
-			XMPPLogSend(@"SEND: %@", outgoingStr);
-			numberOfBytesSent += [outgoingData length];
-			
-			[asyncSocket writeData:outgoingData
-			           withTimeout:TIMEOUT_XMPP_WRITE
-			                   tag:TAG_XMPP_WRITE_STREAM];
+
+            [self handleStreamFeatures];
+
+//			NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:@"jabber:iq:auth"];
+//
+//			NSXMLElement *iq = [NSXMLElement elementWithName:@"iq"];
+//			[iq addAttributeWithName:@"type" stringValue:@"get"];
+//			[iq addChild:query];
+//
+//			NSString *outgoingStr = [iq compactXMLString];
+//			NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
+//
+//			XMPPLogSend(@"SEND: %@", outgoingStr);
+//			numberOfBytesSent += [outgoingData length];
+//
+//			[asyncSocket writeData:outgoingData
+//			           withTimeout:TIMEOUT_XMPP_WRITE
+//			                   tag:TAG_XMPP_WRITE_STREAM];
 			
 			// Now wait for the response IQ
             /*
