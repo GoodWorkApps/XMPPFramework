@@ -93,7 +93,9 @@ Pod::Spec.new do |s|
   
   s.xmpp_extension 'SystemInputActivityMonitor'
 
-  s.xmpp_extension 'XEP-0297'
+  s.xmpp_extension 'XEP-0297' do |x|
+    x.dependency 'XMPPFramework/XEP-0203'
+  end
 
   s.xmpp_extension 'XEP-0009'
   s.xmpp_extension 'XEP-0012'
