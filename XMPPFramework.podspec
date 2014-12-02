@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'XMPPFramework'
-  s.version = '3.7'
+  s.version = '3.7.1'
   s.ios.deployment_target = '5.0'
 #  s.osx.deployment_target = '10.7'
   s.license = { :type => 'BSD', :file => 'copying.txt' }
