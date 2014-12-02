@@ -141,6 +141,8 @@ enum XMPPStreamConfig
 	NSCountedSet *customElementNames;
 	
 	id userTag;
+    
+    BOOL bound;
 }
 
 @end
@@ -3496,7 +3498,6 @@ enum XMPPStreamConfig
 		return;
 	}
 	
->>>>>>> upstream/master
 	// It looks like all has gone well, and the connection should be ready to use now
 	state = STATE_XMPP_CONNECTED;
 	
