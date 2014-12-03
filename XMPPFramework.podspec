@@ -131,6 +131,7 @@ Pod::Spec.new do |s|
   s.xmpp_extension 'XEP-0153' do |x|
     x.dependency 'XMPPFramework/XEP-0054'
   end
+  
   s.xmpp_extension 'XEP-0172'
   s.xmpp_extension 'XEP-0184'
   s.xmpp_extension 'XEP-0199'
@@ -143,4 +144,7 @@ Pod::Spec.new do |s|
   s.xmpp_extension 'XEP-0223'
   s.xmpp_extension 'XEP-0224'
   s.xmpp_extension 'XEP-0308'
+  
+  s.xmpp_extension 'XEP-0198'
+  
 end
