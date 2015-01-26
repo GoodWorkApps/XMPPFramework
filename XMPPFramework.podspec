@@ -30,38 +30,14 @@ Pod::Spec.new do |s|
   END
 
   s.subspec 'Core' do |core|
-    core.source_files = ['XMPPFramework.h', 'Core/**/*.{h,m}','Vendor/libidn/*.h']
+    core.source_files = ['XMPPFramework.h', 'Core/**/*.{h,m}','Vendor/libidn/*.h', 'Authentication/**/*.{h,m}', 'Categories/**/*.{h,m}', 'Vendor/KissXML/**/*.{h,m}', 'Utilities/**/*.{h,m}', ]
     core.vendored_libraries = 'Vendor/libidn/libidn.a'
     core.libraries = 'xml2','resolv'
     core.xcconfig = { 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2 $(SDKROOT)/usr/include/libresolv',
                       'LIBRARY_SEARCH_PATHS' => '"$(PODS_ROOT)/XMPPFramework/Vendor/libidn"'}
 
-    core.dependency 'XMPPFramework/Authentication'
-    core.dependency 'XMPPFramework/Categories'
-    core.dependency 'XMPPFramework/Utilities'
-
-    # Can't use the KissXML pod because enabling the NSXML defines requires
-    # modifying a header
-    core.ios.dependency 'XMPPFramework/KissXML'
-
     core.dependency 'CocoaLumberjack','~>1.6.2'
     core.dependency 'CocoaAsyncSocket','~>7.3.1'
-  end
-
-  s.subspec 'Authentication' do |ss|
-   ss.source_files =  'Authentication/**/*.{h,m}'
-  end
-
-  s.subspec 'Categories' do |ss|
-   ss.source_files =  'Categories/**/*.{h,m}'
-  end
-
-  s.subspec 'Utilities' do |ss|
-   ss.source_files =  'Utilities/**/*.{h,m}'
-  end
-
-  s.subspec 'KissXML' do |ss|
-   ss.source_files = 'Vendor/KissXML/**/*.{h,m}'
   end
 
   def s.xmpp_extension(name)
