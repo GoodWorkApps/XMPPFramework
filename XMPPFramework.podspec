@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name = 'XMPPFramework'
-  s.version = '3.7.1'
+  s.version = '3.7.2'
   s.ios.deployment_target = '5.0'
   s.license = { :type => 'BSD', :file => 'copying.txt' }
   s.summary = 'An XMPP Framework in Objective-C for the Mac / iOS development community.'
   s.homepage = 'https://github.com/robbiehanson/XMPPFramework'
   s.author = { 'Robbie Hanson' => 'robbiehanson@deusty.com' }
-  s.source = { :git => 'https://github.com/GoodWorkApps/XMPPFramework.git', :tag => '3.7.1' }
+  s.source = { :git => 'https://github.com/GoodWorkApps/XMPPFramework.git', :tag => '3.7.2' }
   s.resources = [ '**/*.{xcdatamodel,xcdatamodeld}']
 
   s.description = 'XMPPFramework provides a core implementation of RFC-3920 (the xmpp standard), along with
@@ -50,22 +50,18 @@ Pod::Spec.new do |s|
 
   s.subspec 'Authentication' do |ss|
    ss.source_files =  'Authentication/**/*.{h,m}'
-   ss.dependency 'XMPPFramework/Core'
   end
 
   s.subspec 'Categories' do |ss|
    ss.source_files =  'Categories/**/*.{h,m}'
-   ss.dependency 'XMPPFramework/Core'
   end
 
   s.subspec 'Utilities' do |ss|
    ss.source_files =  'Utilities/**/*.{h,m}'
-   ss.dependency 'XMPPFramework/Core'
   end
 
   s.subspec 'KissXML' do |ss|
    ss.source_files = 'Vendor/KissXML/**/*.{h,m}'
-   ss.dependency 'XMPPFramework/Core'
   end
 
   def s.xmpp_extension(name)
@@ -77,74 +73,11 @@ Pod::Spec.new do |s|
     end
   end
 
-  s.xmpp_extension 'BandwidthMonitor'
-  s.xmpp_extension 'CoreDataStorage' do |cds|
-    cds.framework = 'CoreData'
-  end
-  s.xmpp_extension 'GoogleSharedStatus'
-  s.xmpp_extension 'ProcessOne'
   s.xmpp_extension 'Reconnect' do |r|
     r.framework = 'SystemConfiguration'
   end
-  s.xmpp_extension 'Roster' do |r|
-    r.dependency 'XMPPFramework/CoreDataStorage'
-    r.dependency 'XMPPFramework/XEP-0203'
-  end
-  
-  s.xmpp_extension 'SystemInputActivityMonitor'
 
-  s.xmpp_extension 'XEP-0297' do |x|
-    x.dependency 'XMPPFramework/XEP-0203'
-  end
-
-  s.xmpp_extension 'XEP-0009'
-  s.xmpp_extension 'XEP-0012'
-  s.xmpp_extension 'XEP-0016'
-  
-  s.xmpp_extension 'XEP-0045' do |x|
-    x.dependency 'XMPPFramework/CoreDataStorage'
-    x.dependency 'XMPPFramework/XEP-0203'
-  end
-  
-  s.xmpp_extension 'XEP-0054' do |x|
-    x.dependency 'XMPPFramework/Roster'
-    x.dependency 'XMPPFramework/XEP-0153'
-    x.framework = 'CoreLocation'
-  end
-  
-  s.xmpp_extension 'XEP-0059'
-  s.xmpp_extension 'XEP-0060'
-  s.xmpp_extension 'XEP-0065'
-  s.xmpp_extension 'XEP-0066'
-  s.xmpp_extension 'XEP-0082'
-  s.xmpp_extension 'XEP-0085'
-  s.xmpp_extension 'XEP-0100'
-  s.xmpp_extension 'XEP-0106'
-  s.xmpp_extension 'XEP-0115' do |x|
-    x.dependency 'XMPPFramework/CoreDataStorage'
-  end
-  s.xmpp_extension 'XEP-0136' do |x|
-    x.dependency 'XMPPFramework/CoreDataStorage'
-    x.dependency 'XMPPFramework/XEP-0203'
-    x.dependency 'XMPPFramework/XEP-0085'
-  end
-  s.xmpp_extension 'XEP-0153' do |x|
-    x.dependency 'XMPPFramework/XEP-0054'
-  end
-  
-  s.xmpp_extension 'XEP-0172'
-  s.xmpp_extension 'XEP-0184'
   s.xmpp_extension 'XEP-0199'
-  s.xmpp_extension 'XEP-0202' do |x|
-    x.dependency 'XMPPFramework/XEP-0082'
-  end
-  s.xmpp_extension 'XEP-0203' do |x|
-    x.dependency 'XMPPFramework/XEP-0082'
-  end
-  s.xmpp_extension 'XEP-0223'
-  s.xmpp_extension 'XEP-0224'
-  s.xmpp_extension 'XEP-0308'
-  
   s.xmpp_extension 'XEP-0198'
   
 end
